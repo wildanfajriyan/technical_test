@@ -25,7 +25,7 @@ const fruits = [
   },
   {
     fruitId: 5,
-    fruitName: 'Jeruk Bali',
+    fruitName: 'Jeruk bali',
     fruitType: 'LOCAL',
     stock: 10,
   },
@@ -43,36 +43,55 @@ const fruits = [
   },
 ];
 
-function toLower(data) {
-  return data.map((data) => ({
-    ...data,
-    fruitName: data.fruitName.toLowerCase(),
-  }));
+function capitalize(str) {
+  return str
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 }
 
-// 1
-function getFruitName(data) {
-  return data.filter(
-    (currFruit, idx) =>
-      idx === data.findIndex((fruit) => currFruit.fruitName === fruit.fruitName)
-  );
+function splitFruitByType(fruits, type) {
+  return fruits.filter((fruit) => fruit.fruitType === type);
 }
 
-// 2
-function splitFruitByType(data, type) {
-  return data.filter((fruit) => fruit.fruitType === type);
-}
-
-// 3
 function sumByStock(data) {
   return data.reduce((acc, curr) => acc + curr.stock, 0);
 }
 
-let someFruits = toLower(fruits);
-someFruits = getFruitName(someFruits);
+function getFruitName(data) {
+  return [
+    ...new Set(data.map((fruit) => capitalize(fruit.fruitName.toLowerCase()))),
+  ];
+}
 
-let fruitsImport = splitFruitByType(someFruits, 'IMPORT');
-let fruitsLocal = splitFruitByType(someFruits, 'LOCAL');
+function getFruitsByType(data) {
+  let groupFruits = {};
+  const types = [...new Set(data.map((fruit) => fruit.fruitType))];
 
-let sumFruitsImport = sumByStock(fruitsImport);
-let sumFruitsLocal = sumByStock(fruitsLocal);
+  for (let i = 0; i < types.length; i++) {
+    let type = types[i];
+    let filteredFruits = splitFruitByType(data, type);
+    let fruitNames = getFruitName(filteredFruits);
+    groupFruits[type] = fruitNames;
+  }
+
+  return groupFruits;
+}
+
+function getStockPerType(data) {
+  let stockByType = {};
+  const types = [...new Set(data.map((fruit) => fruit.fruitType))];
+
+  for (let i = 0; i < types.length; i++) {
+    let type = types[i];
+    let filteredFruits = splitFruitByType(data, type);
+    stockByType[type] = sumByStock(filteredFruits);
+  }
+  return stockByType;
+}
+
+console.log('buah yang dimiliki andi:', getFruitName(fruits));
+const groupedFruits = getFruitsByType(fruits);
+console.log('buah dalam setiap wadah:', groupedFruits);
+console.log('jumlah wadah yang dibutuhkan:', Object.keys(groupedFruits).length);
+console.log('total stock per wadah:', getStockPerType(fruits));
